@@ -9,18 +9,6 @@ type Transfer struct {
 	Signature string `json:"signature"`
 }
 
-type Request struct {
-	Asset      string `json:"asset"`
-	AssetName  string `json:"assetName"`
-	ChainID    int    `json:"chainId"`
-	Expiry     int64  `json:"expiry"`
-	IsPut      bool   `json:"isPut"`
-	IsTakerBuy bool   `json:"isTakerBuy"`
-	Quantity   string `json:"quantity"`
-	Strike     string `json:"strike"`
-	Taker      string `json:"taker"`
-}
-
 type Quote struct {
 	AssetAddress string  `json:"assetAddress"`
 	ChainID      int     `json:"chainId"`
