@@ -66,44 +66,7 @@ func pipeCommands(fifoPath string, ch chan<- []byte) {
 	}
 }
 
-func send(c *cli.Context) error {
-	action := c.String("action")
-	channelID := c.String("channel_id")
-	reply_id := c.String("reply_id")
-	msg := c.String("msg")
-	pk := c.String("private_key")
-
-	payload := JsonRPCRequest{
-		JsonRPC: "2.0",
-		ID:      reply_id,
-		Method:  action,
-	}
-
-	switch action {
-	case "transfer":
-		t := new(Transfer)
-		err := json.Unmarshal([]byte(msg), t)
-		if err != nil {
-			return fmt.Errorf("invalid data: %s", err)
-		}
-		msgHash, _, _ := CreateTransferMessage(*t)
-		sig, _ := Sign(msgHash, pk)
-		t.Signature = sig
-		payload.Params = t
-	case "quote":
-		q := new(Quote)
-		err := json.Unmarshal([]byte(msg), q)
-		if err != nil {
-			return fmt.Errorf("invalid data: %s", err)
-		}
-		msgHash, _, _ := CreateQuoteMessage(*q)
-		sig, _ := Sign(msgHash, pk)
-		q.Signature = sig
-		payload.Params = q
-	default:
-		payload.Params = msg
-	}
-
+func writeToFifo(channelID string, payload any) error {
 	data, err := json.Marshal(payload)
 	if err != nil {
 		return fmt.Errorf("invalid payload: %v", err)
@@ -119,6 +82,64 @@ func send(c *cli.Context) error {
 		return fmt.Errorf("failed to write to FIFO: %v", err)
 	}
 	return nil
+}
+
+func transfer(c *cli.Context) error {
+	channelID := c.String("channel_id")
+	nonce := c.String("nonce")
+	payload := JsonRPCRequest{
+		JsonRPC: "2.0",
+		ID:      nonce,
+		Method:  "transfer",
+	}
+
+	t := Transfer{
+		Asset:     c.String("asset"),
+		ChainID:   int(c.Int64("chain_id")),
+		Amount:    c.String("amount"),
+		IsDeposit: c.Bool("is_deposit"),
+		Nonce:     nonce,
+	}
+
+	msgHash, _, _ := CreateTransferMessage(t)
+	sig, _ := Sign(msgHash, c.String("private_key"))
+	t.Signature = sig
+	payload.Params = t
+	return writeToFifo(channelID, payload)
+
+}
+
+func quote(c *cli.Context) error {
+	channelID := c.String("channel_id")
+	reply_id := c.String("reply_id")
+	pk := c.String("private_key")
+
+	payload := JsonRPCRequest{
+		JsonRPC: "2.0",
+		ID:      reply_id,
+		Method:  "quote",
+	}
+
+	q := Quote{
+		AssetAddress: c.String("asset"),
+		ChainID:      c.Int("chain_id"),
+		Expiry:       c.Int64("expiry"),
+		IsPut:        c.Bool("is_put"),
+		IsTakerBuy:   c.Bool("is_taker_buy"),
+		Maker:        c.String("maker"),
+		Nonce:        c.String("nonce"),
+		Price:        c.String("price"),
+		Quantity:     c.String("quantity"),
+		Strike:       c.String("strike"),
+		ValidUntil:   c.Int64("valid_until"),
+	}
+
+	msgHash, _, _ := CreateQuoteMessage(q)
+	sig, _ := Sign(msgHash, pk)
+	q.Signature = sig
+	payload.Params = q
+
+	return writeToFifo(channelID, payload)
 }
 
 func daemon(c *cli.Context) error {
@@ -142,23 +163,38 @@ func main() {
 		Name: "rysk-v12-cli",
 		Commands: []*cli.Command{
 			{
-				Name:  "send",
-				Usage: "Send a message over WebSocket",
+				Name:  "transfer",
+				Usage: "request a transfer",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:     "channel_id",
 						Required: true,
 						Usage:    "the socket id to send messages into",
 					},
-					&cli.StringFlag{
-						Name:     "action",
+					&cli.Int64Flag{
+						Name:     "chain_id",
 						Required: true,
-						Usage:    "the action to perform",
+						Usage:    "chain_id",
 					},
 					&cli.StringFlag{
-						Name:     "data",
+						Name:     "asset",
 						Required: true,
-						Usage:    "json stringified payload",
+						Usage:    "asset address",
+					},
+					&cli.StringFlag{
+						Name:     "amount",
+						Required: true,
+						Usage:    "amount to deposit",
+					},
+					&cli.BoolFlag{
+						Name:     "is_deposit",
+						Required: true,
+						Usage:    "whether you want to deposit or withdraw",
+					},
+					&cli.BoolFlag{
+						Name:     "nonce",
+						Required: true,
+						Usage:    "nonce to sign the message with",
 					},
 					&cli.StringFlag{
 						Name:     "private_key",
@@ -167,7 +203,66 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					return send(c)
+					return transfer(c)
+				},
+			},
+			{
+				Name:  "quote",
+				Usage: "Send a quote",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "channel_id",
+						Required: true,
+						Usage:    "the socket id to send messages into",
+					},
+					&cli.IntFlag{
+						Name:     "chain_id",
+						Required: true,
+					},
+					&cli.Int64Flag{
+						Name:     "expiry",
+						Required: true,
+					},
+					&cli.BoolFlag{
+						Name:     "is_put",
+						Required: true,
+					},
+					&cli.BoolFlag{
+						Name:     "is_taker_buy",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "maker",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "nonce",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "price",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "quantity",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "strike",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "valid_until",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "private_key",
+						Required: true,
+						Usage:    "private key to sign messages with",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					return quote(c)
 				},
 			},
 			{
