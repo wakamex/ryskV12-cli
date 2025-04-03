@@ -3,7 +3,7 @@ name: Tag and Publish Go Binaries
 on:
   push:
     tags:
-      - "v*.*.*" # Trigger on any tag
+      - "*" # Trigger on any tag
 
 jobs:
   build_and_publish:
