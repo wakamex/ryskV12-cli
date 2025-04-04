@@ -69,8 +69,6 @@ Flags
 
 Requests a transfer (deposit or withdrawal) through the WebSocket.
 
-### Bash
-
 ```bash
 ./ryskV12 transfer --channel_id <channel_id> --chain_id <chain_id> --asset <asset_address> --amount <amount> --is_deposit <true|false> --nonce <nonce> --private_key <private_key>
 ```
