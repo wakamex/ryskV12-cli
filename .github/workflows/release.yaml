@@ -40,7 +40,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag_name_input.outputs.TAG_NAME }}
-          release_name: Release ${{ steps.tag_name_input.outputs.TAG_NAME }}
+          release_name: ${{ steps.tag_name_input.outputs.TAG_NAME }}
           draft: false
           prerelease: false
 
