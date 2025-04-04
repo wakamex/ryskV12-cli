@@ -1,9 +1,12 @@
 name: Tag and Publish Go Binaries
 
 on:
-  push:
-    tags:
-      - "*" # Trigger on any tag
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag name (e.g., v1.2.3)"
+        required: true
+        type: string
 
 jobs:
   build_and_publish:
@@ -13,6 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Set up Go
@@ -20,9 +24,9 @@ jobs:
         with:
           go-version: "^1.23"
 
-      - name: Get tag name
-        id: tag_name
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      - name: Get tag name from input
+        id: tag_name_input
+        run: echo "TAG_NAME=${{ github.event.inputs.tag_name }}" >> $GITHUB_OUTPUT
 
       - name: Build binaries
         run: |
@@ -35,8 +39,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.tag_name.outputs.TAG_NAME }}
-          release_name: Release ${{ steps.tag_name.outputs.TAG_NAME }}
+          tag_name: ${{ steps.tag_name_input.outputs.TAG_NAME }}
+          release_name: Release ${{ steps.tag_name_input.outputs.TAG_NAME }}
           draft: false
           prerelease: false
 
