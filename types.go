@@ -23,3 +23,5 @@ type Quote struct {
 	Signature    string  `json:"signature"`
 	ValidUntil   int64   `json:"validUntil"`
 }
+
+
