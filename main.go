@@ -320,8 +320,8 @@ func main() {
 				},
 			},
 			{
-				Name:  "start",
-				Usage: "Run the CLI in daemon mode",
+				Name:  "connect",
+				Usage: "instantiate a websocket connection",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:     "channel_id",
