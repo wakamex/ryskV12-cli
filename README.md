@@ -63,6 +63,10 @@ Flags
 - `--channel_id` (**required**): Unique ID for the connection and named pipe (/tmp/<channel_id>).
 - `--url` (**required**): WebSocket URL to connect to.
 
+Endpoints:
+- `wss://<base_url>/rfqs/<asset_address>` listen for rfqs for the specified asset
+- `wss://<base_url>/maker` endpoint to send quotes and transfer requests
+
 ---
 
 ## `transfer`
