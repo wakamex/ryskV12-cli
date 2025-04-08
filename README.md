@@ -113,7 +113,7 @@ Endpoints:
 Sends a signed quote for options trading through the WebSocket.
 
 ```bash
-./ryskV12 quote --channel_id <channel_id> --chain_id <chain_id> --expiry <expiry_timestamp> --is_put <true|false> --is_taker_buy <true|false> --maker <maker_address> --nonce <nonce> --price <price> --quantity <quantity> --strike <strike> --valid_until <valid_until_timestamp> --private_key <private_key>
+./ryskV12 quote --channel_id <channel_id> --chain_id <chain_id> --expiry <expiry_timestamp> --is_put --is_taker_buy --maker <maker_address> --nonce <nonce> --price <price> --quantity <quantity> --strike <strike> --valid_until <valid_until_timestamp> --private_key <private_key>
 ```
 
 Flags
