@@ -6,20 +6,21 @@ This CLI allows you to connect to a WebSocket server, send signed messages for a
 
 ## Features
 
-* **Connect to WebSocket:** Establishes a persistent connection to a specified WebSocket URL.
-* **Inter-Process Communication (IPC):** Uses named pipes (`/tmp/<channel_id>`) to allow other processes to send commands to the running WebSocket connection.
-* **Approve Spending:** Sends a signed transaction to approve spending of the default strike asset on a given chain.
-* **Initiate Transfer:** Creates and sends a signed transfer request (deposit or withdrawal) through the WebSocket.
-* **Send Quote:** Constructs and transmits a signed quote for options trading via the WebSocket.
+- **Connect to WebSocket:** Establishes a persistent connection to a specified WebSocket URL.
+- **Inter-Process Communication (IPC):** Uses named pipes (`/tmp/<channel_id>`) to allow other processes to send commands to the running WebSocket connection.
+- **Approve Spending:** Sends a signed transaction to approve spending of the default strike asset on a given chain.
+- **Initiate Transfer:** Creates and sends a signed transfer request (deposit or withdrawal) through the WebSocket.
+- **Send Quote:** Constructs and transmits a signed quote for options trading via the WebSocket.
 
 ## Prerequisites
 
-* **Go (Golang) installed:** This project is written in Go and requires a Go development environment to build.
-* **Ethereum Node Access:** For the `approve` command, you'll need access to an Ethereum node (e.g., via Infura, Alchemy, or a local node) corresponding to the specified `rpc_url`.
+- **Go (Golang) installed:** This project is written in Go and requires a Go development environment to build.
+- **Ethereum Node Access:** For the `approve` command, you'll need access to an Ethereum node (e.g., via Infura, Alchemy, or a local node) corresponding to the specified `rpc_url`.
 
 ## Installation
 
 1.  **Clone the repository (if the code is in one):**
+
     ```bash
     git clone <repository_url>
     cd <repository_directory>
@@ -44,14 +45,30 @@ Approves spending of the default strike asset for a given account.
 ```
 
 Flags
-- `--chain_id` (**required**): The ID of the blockchain.  
-- `--rpc_url` (**required**): The URL of the Ethereum RPC endpoint.  
-- `--amount` (**required**): The amount of the asset to approve for spending.  
-- `--private_key` (**required**): The private key of the Ethereum account performing the approval.  
+
+- `--chain_id` (**required**): The ID of the blockchain.
+- `--rpc_url` (**required**): The URL of the Ethereum RPC endpoint.
+- `--amount` (**required**): The amount of the asset to approve for spending.
+- `--private_key` (**required**): The private key of the Ethereum account performing the approval.
 
 ---
 
-## `connect`
+### `balances`
+
+Approves spending of the default strike asset for a given account.
+
+```bash
+./ryskV12 balances --channel_id <channel_id> --account <0xabc>
+```
+
+Flags
+
+- `--account` (**required**): The address to query data for.
+- `--channel_id` (**required**): Unique ID for the connection and named pipe (/tmp/<channel_id>).
+
+---
+
+### `connect`
 
 Establishes a WebSocket connection and runs in daemon mode with a named pipe.
 
@@ -60,35 +77,38 @@ Establishes a WebSocket connection and runs in daemon mode with a named pipe.
 ```
 
 Flags
+
 - `--channel_id` (**required**): Unique ID for the connection and named pipe (/tmp/<channel_id>).
 - `--url` (**required**): WebSocket URL to connect to.
 
 Endpoints:
+
 - `wss://<base_url>/rfqs/<asset_address>` listen for rfqs for the specified asset
 - `wss://<base_url>/maker` endpoint to send quotes and transfer requests
 
 ---
 
-## `transfer`
+### `positions`
 
-Requests a transfer (deposit or withdrawal) through the WebSocket.
+Establishes a WebSocket connection and runs in daemon mode with a named pipe.
 
 ```bash
-./ryskV12 transfer --channel_id <channel_id> --chain_id <chain_id> --asset <asset_address> --amount <amount> --is_deposit <true|false> --nonce <nonce> --private_key <private_key>
+./ryskV12 positions --channel_id <channel_id> --account <0xabc>
 ```
 
 Flags
-- `--channel_id` (**required**): The unique ID of the WebSocket connection (matches connect --channel_id).
-- `--chain_id` (**required**): The ID of the blockchain for the transfer.
-- `--asset` (**required**): The address of the asset being transferred.
-- `--amount` (**required**): The amount to transfer.
-- `--is_deposit` (**required**): true for deposit, false for withdrawal.
-- `--nonce` (**required**): A unique nonce for signing.
-- `--private_key` (**required**): The private key for signing.
+
+- `--account` (**required**): The address to query data for.
+- `--channel_id` (**required**): Unique ID for the connection and named pipe (/tmp/<channel_id>).
+
+Endpoints:
+
+- `wss://<base_url>/rfqs/<asset_address>` listen for rfqs for the specified asset
+- `wss://<base_url>/maker` endpoint to send quotes and transfer requests
 
 ---
 
-## `quote`
+### `quote`
 
 Sends a signed quote for options trading through the WebSocket.
 
@@ -97,11 +117,12 @@ Sends a signed quote for options trading through the WebSocket.
 ```
 
 Flags
+
 - `--channel_id` (**required**): The unique ID of the WebSocket connection.
 - `--chain_id` (**required**): The ID of the blockchain.
 - `--expiry` (**required**): Option expiry timestamp.
-- `--is_put` (**required**): true for put, false for call.\
-- `--is_taker_buy` (**required**): true if maker buys, false if maker sells.
+- `--is_put`: present for put, not for call.
+- `--is_taker_buy`: present if maker buys, not if maker sells.
 - `--maker` (**required**): Address of the quote maker.
 - `--nonce` (**required**): Unique nonce for the quote.
 - `--price` (**required**): Option price.
@@ -109,3 +130,23 @@ Flags
 - `--strike` (**required**): Option strike price.
 - `--valid_until` (**required**): Quote validity timestamp.
 - `--private_key` (**required**): Private key for signing.
+
+---
+
+### `transfer`
+
+Requests a transfer (deposit or withdrawal) through the WebSocket.
+
+```bash
+./ryskV12 transfer --channel_id <channel_id> --chain_id <chain_id> --asset <asset_address> --amount <amount> --is_deposit --nonce <nonce> --private_key <private_key>
+```
+
+Flags
+
+- `--channel_id` (**required**): The unique ID of the WebSocket connection (matches connect --channel_id).
+- `--chain_id` (**required**): The ID of the blockchain for the transfer.
+- `--asset` (**required**): The address of the asset being transferred.
+- `--amount` (**required**): The amount to transfer.
+- `--is_deposit`: present if deposit, not for withdrawal.
+- `--nonce` (**required**): A unique nonce for signing.
+- `--private_key` (**required**): The private key for signing.
