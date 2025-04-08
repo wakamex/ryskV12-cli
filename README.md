@@ -47,7 +47,7 @@ Flags
 
 ### `balances`
 
-Approves spending of the default strike asset for a given account.
+Retrieves USDC balances for the specified account.
 
 ```bash
 ./ryskV12 balances --channel_id <channel_id> --account <0xabc>
@@ -82,8 +82,7 @@ Endpoints:
 
 ### `positions`
 
-Establishes a WebSocket connection and runs in daemon mode with a named pipe.
-
+Retrieves positions (oToken details) for the specified account
 ```bash
 ./ryskV12 positions --channel_id <channel_id> --account <0xabc>
 ```
