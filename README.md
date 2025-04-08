@@ -104,12 +104,13 @@ Endpoints:
 Sends a signed quote for options trading through the WebSocket.
 
 ```bash
-./ryskV12 quote --channel_id <channel_id> --chain_id <chain_id> --expiry <expiry_timestamp> --is_put --is_taker_buy --maker <maker_address> --nonce <nonce> --price <price> --quantity <quantity> --strike <strike> --valid_until <valid_until_timestamp> --private_key <private_key>
+./ryskV12 quote --channel_id <channel_id> --rfq_id <rfq_id> --chain_id <chain_id> --expiry <expiry_timestamp> --is_put --is_taker_buy --maker <maker_address> --nonce <nonce> --price <price> --quantity <quantity> --strike <strike> --valid_until <valid_until_timestamp> --private_key <private_key>
 ```
 
 Flags
 
 - `--channel_id` (**required**): The unique ID of the WebSocket connection.
+- `--rfq_id` (**required**): The unique ID of the rfq you are quoting for.
 - `--chain_id` (**required**): The ID of the blockchain.
 - `--expiry` (**required**): Option expiry timestamp.
 - `--is_put`: present for put, not for call.
