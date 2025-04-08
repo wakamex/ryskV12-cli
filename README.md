@@ -1,4 +1,4 @@
-# rysk-v12-cli
+# Rysk V12 CLI
 
 A command-line interface (CLI) for interacting with the Rysk v12 protocol via WebSockets.
 
