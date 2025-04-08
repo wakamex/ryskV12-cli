@@ -12,9 +12,9 @@ var quoteAction = &cli.Command{
 			Usage:    "the socket id to send messages into",
 		},
 		&cli.StringFlag{
-			Name:     "reply_id",
+			Name:     "rfq_id",
 			Required: true,
-			Usage:    "the notification id to respond to",
+			Usage:    "the rfq id to respond to",
 		},
 		&cli.StringFlag{
 			Name:     "asset",
@@ -72,12 +72,12 @@ var quoteAction = &cli.Command{
 
 func quote(c *cli.Context) error {
 	channelID := c.String("channel_id")
-	reply_id := c.String("reply_id")
+	rfq_id := c.String("rfq_id")
 	pk := c.String("private_key")
 
 	payload := JsonRPCRequest{
 		JsonRPC: "2.0",
-		ID:      reply_id,
+		ID:      rfq_id,
 		Method:  "quote",
 	}
 

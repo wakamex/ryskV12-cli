@@ -1,6 +1,5 @@
 package main
 
-
 type Transfer struct {
 	Asset     string `json:"asset"`
 	ChainID   int    `json:"chainId"`
@@ -23,4 +22,12 @@ type Quote struct {
 	Strike       string `json:"strike"`
 	Signature    string `json:"signature"`
 	ValidUntil   int64  `json:"validUntil"`
+}
+
+type QuoteNotification struct {
+	RequestID string `json:"rfqId"`
+	Asset     string `json:"assetAddress"`
+	ChainID   int    `json:"chainId"`
+	NewBest   string `json:"newBest"`
+	Yours     string `json:"yours"`
 }
