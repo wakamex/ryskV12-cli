@@ -4,14 +4,6 @@ A command-line interface (CLI) for interacting with the Rysk v12 protocol via We
 
 This CLI allows you to connect to a WebSocket server, send signed messages for actions like approving token spending, initiating transfers, and sending quotes. It utilizes named pipes (FIFOs) for inter-process communication, enabling you to send commands to a running WebSocket connection from other processes.
 
-## Features
-
-- **Connect to WebSocket:** Establishes a persistent connection to a specified WebSocket URL.
-- **Inter-Process Communication (IPC):** Uses named pipes (`/tmp/<channel_id>`) to allow other processes to send commands to the running WebSocket connection.
-- **Approve Spending:** Sends a signed transaction to approve spending of the default strike asset on a given chain.
-- **Initiate Transfer:** Creates and sends a signed transfer request (deposit or withdrawal) through the WebSocket.
-- **Send Quote:** Constructs and transmits a signed quote for options trading via the WebSocket.
-
 ## Prerequisites
 
 - **Go (Golang) installed:** This project is written in Go and requires a Go development environment to build.
