@@ -59,5 +59,11 @@ func approve(c *cli.Context) error {
 		return err
 	}
 
-	return account.approve(c.Context, chain_id, *client, bigAmount)
+	txHash, err := account.approve(c.Context, chain_id, *client, bigAmount)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(txHash)
+	return nil
 }

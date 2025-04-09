@@ -70,26 +70,26 @@ func (a *Account) newTransactionOpts(ctx context.Context, chainID int, c ethclie
 	return opts, nil
 }
 
-func (a *Account) approve(ctx context.Context, chainID int, client ethclient.Client, amount *big.Int) (err error) {
+func (a *Account) approve(ctx context.Context, chainID int, client ethclient.Client, amount *big.Int) (txHash string, err error) {
 	opts, err := a.newTransactionOpts(ctx, chainID, client)
 	if err != nil {
-		return nil
+		return "", nil
 	}
 
 	erc20, err := NewIERC20(ADDRESSES[chainID].StrikeAsset, &client)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	tx, err := erc20.Approve(opts, ADDRESSES[chainID].MarginPool, amount)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	_, err = bind.WaitMined(ctx, &client, tx)
+	rx, err := bind.WaitMined(ctx, &client, tx)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return rx.TxHash.Hex(), nil
 }
