@@ -95,8 +95,14 @@ func quote(c *cli.Context) error {
 		ValidUntil:   c.Int64("valid_until"),
 	}
 
-	msgHash, _, _ := CreateQuoteMessage(q)
-	sig, _ := Sign(msgHash, pk)
+	msgHash, _, err := CreateQuoteMessage(q)
+	if err != nil {
+		return err
+	}
+	sig, err := Sign(msgHash, pk)
+	if err != nil {
+		return err
+	}
 	q.Signature = sig
 	payload.Params = q
 

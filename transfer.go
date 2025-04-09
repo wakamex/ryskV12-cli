@@ -2,7 +2,6 @@ package main
 
 import "github.com/urfave/cli/v2"
 
-
 var transferAction = &cli.Command{
 	Name:  "transfer",
 	Usage: "request a transfer",
@@ -64,8 +63,14 @@ func transfer(c *cli.Context) error {
 		Nonce:     nonce,
 	}
 
-	msgHash, _, _ := CreateTransferMessage(t)
-	sig, _ := Sign(msgHash, c.String("private_key"))
+	msgHash, _, err := CreateTransferMessage(t)
+	if err != nil {
+		return err
+	}
+	sig, err := Sign(msgHash, c.String("private_key"))
+	if err != nil {
+		return err
+	}
 	t.Signature = sig
 	payload.Params = t
 	return writeToFifo(channelID, payload)
