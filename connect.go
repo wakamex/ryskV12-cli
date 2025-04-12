@@ -5,9 +5,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"os"
-	"syscall"
 
+	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
 	"github.com/urfave/cli/v2"
 )
@@ -34,11 +35,17 @@ var connectAction = &cli.Command{
 
 func connect(c *cli.Context) error {
 	channel_id := c.String("channel_id")
-	fifopath := fmt.Sprintf("/tmp/%s", channel_id)
+	socketPath := fmt.Sprintf("/tmp/%s.sock", channel_id)
 	cmdChan := make(chan []byte)
-	go pipeCommands(fifopath, cmdChan)
-	// ws connection
+	ln, err := net.ListenUnix("unix", &net.UnixAddr{Name: socketPath, Net: "unix"})
+	if err != nil {
+		log.Fatalf("listen error: %v", err)
+	}
+	defer ln.Close()
+	defer os.Remove(socketPath)
+
 	ctx, cancel := context.WithCancel(c.Context)
+	// ws connection
 	conn, _, err := websocket.DefaultDialer.Dial(c.String("url"), nil)
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
@@ -48,6 +55,7 @@ func connect(c *cli.Context) error {
 		fmt.Println(string(msg))
 	})
 	go listenMessages(client)
+	go pipeCommands(ctx, ln, cmdChan)
 
 	for {
 		select {
@@ -55,7 +63,11 @@ func connect(c *cli.Context) error {
 			return nil
 		case cmd := <-cmdChan:
 			fmt.Println(string(cmd))
-			client.Send(cmd)
+			if string(cmd) == "kill" {
+				cancel()
+			} else {
+				client.Send(cmd)
+			}
 		}
 	}
 }
@@ -76,22 +88,47 @@ func listenMessages(client *Client) {
 	}
 }
 
-func pipeCommands(fifoPath string, ch chan<- []byte) {
-	if _, err := os.Stat(fifoPath); err == nil {
-		log.Fatalf("error: FIFO already exists at %s", fifoPath)
-	} else if !os.IsNotExist(err) {
-		log.Fatalf("error checking FIFO: %v", err)
-	}
-	err := syscall.Mkfifo(fifoPath, 0666)
+func writeToSocket(channelID string, payload any) error {
+	data, err := json.Marshal(payload)
 	if err != nil {
-		log.Fatalf("failed to create FIFO: %v", err)
+		return fmt.Errorf("invalid payload: %v", err)
 	}
-	fifo, err := os.OpenFile(fifoPath, os.O_RDONLY, os.ModeNamedPipe)
+
+	socketPath := fmt.Sprintf("/tmp/%s.sock", channelID)
+	conn, err := net.DialUnix("unix", nil, &net.UnixAddr{Name: socketPath, Net: "unix"})
 	if err != nil {
-		log.Fatalf("failed to open fifo: %v", err)
+		return fmt.Errorf("failed to connect to socket: %v", err)
 	}
-	scanner := bufio.NewScanner(fifo)
-	for scanner.Scan() {
-		ch <- scanner.Bytes()
+	defer conn.Close()
+
+	_, err = conn.Write(append(data, '\n')) // Append newline for line-based reading.
+	if err != nil {
+		return fmt.Errorf("failed to write to socket: %v", err)
 	}
+	return nil
+}
+
+func pipeCommands(ctx context.Context, ln *net.UnixListener, ch chan<- []byte) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			unixConn, err := ln.AcceptUnix()
+			if err != nil {
+				log.Fatalf("accept error: %v", err)
+			}
+			scanner := bufio.NewScanner(unixConn)
+			for scanner.Scan() {
+				cmd := scanner.Bytes()
+				fmt.Print("piped cmd", string(cmd))
+				ch <- cmd
+			}
+			if err := scanner.Err(); err != nil {
+				log.Printf("Error reading from socket: %v", err)
+			}
+			unixConn.Close()
+		}
+	}
+
 }

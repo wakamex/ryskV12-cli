@@ -20,7 +20,7 @@ var positionsAction = &cli.Command{
 			Usage:    "address of the account to get positions for",
 		},
 	},
-	Action: func (c *cli.Context) error {
+	Action: func(c *cli.Context) error {
 		return positions(c)
 	},
 }
@@ -37,5 +37,5 @@ func positions(c *cli.Context) error {
 		},
 	}
 
-	return writeToFifo(c.String("channel_id"), payload)
+	return writeToSocket(c.String("channel_id"), payload)
 }

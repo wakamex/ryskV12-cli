@@ -73,5 +73,5 @@ func transfer(c *cli.Context) error {
 	}
 	t.Signature = sig
 	payload.Params = t
-	return writeToFifo(channelID, payload)
+	return writeToSocket(channelID, payload)
 }

@@ -106,5 +106,5 @@ func quote(c *cli.Context) error {
 	q.Signature = sig
 	payload.Params = q
 
-	return writeToFifo(channelID, payload)
+	return writeToSocket(channelID, payload)
 }

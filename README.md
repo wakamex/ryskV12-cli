@@ -2,7 +2,7 @@
 
 A command-line interface (CLI) for interacting with the Rysk v12 protocol via WebSockets.
 
-This CLI allows you to connect to a WebSocket server, send signed messages for actions like approving token spending, initiating transfers, and sending quotes. It utilizes named pipes (FIFOs) for inter-process communication, enabling you to send commands to a running WebSocket connection from other processes.
+This CLI allows you to connect to a WebSocket server, send signed messages for actions like approving token spending, initiating transfers, and sending quotes. It utilizes Unix sockets for inter-process communication, enabling you to send commands to a running WebSocket connection from other processes.
 
 ## Prerequisites
 
