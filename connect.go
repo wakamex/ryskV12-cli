@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
@@ -62,9 +63,9 @@ func connect(c *cli.Context) error {
 		case <-ctx.Done():
 			return nil
 		case cmd := <-cmdChan:
-			fmt.Println(string(cmd))
-			if string(cmd) == "kill" {
+			if strings.Contains(string(cmd), "disconnect") {
 				cancel()
+				return nil
 			} else {
 				client.Send(cmd)
 			}
@@ -121,7 +122,6 @@ func pipeCommands(ctx context.Context, ln *net.UnixListener, ch chan<- []byte) {
 			scanner := bufio.NewScanner(unixConn)
 			for scanner.Scan() {
 				cmd := scanner.Bytes()
-				fmt.Print("piped cmd", string(cmd))
 				ch <- cmd
 			}
 			if err := scanner.Err(); err != nil {

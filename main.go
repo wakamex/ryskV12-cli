@@ -14,6 +14,7 @@ func main() {
 			approveAction,
 			balancessAction,
 			connectAction,
+			diconnectAction,
 			positionsAction,
 			quoteAction,
 			transferAction,
