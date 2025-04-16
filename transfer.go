@@ -30,7 +30,7 @@ var transferAction = &cli.Command{
 			Name:  "is_deposit",
 			Usage: "whether you want to deposit or withdraw",
 		},
-		&cli.BoolFlag{
+		&cli.StringFlag{
 			Name:     "nonce",
 			Required: true,
 			Usage:    "nonce to sign the message with",
@@ -49,10 +49,14 @@ var transferAction = &cli.Command{
 func transfer(c *cli.Context) error {
 	channelID := c.String("channel_id")
 	nonce := c.String("nonce")
+	method := "withdraw"
+	if c.Bool("is_deposit") {
+		method = "deposit"
+	}
 	payload := JsonRPCRequest{
 		JsonRPC: "2.0",
 		ID:      nonce,
-		Method:  "transfer",
+		Method:  method,
 	}
 
 	t := Transfer{
