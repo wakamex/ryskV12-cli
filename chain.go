@@ -16,11 +16,13 @@ const (
 	CHAIN_ID_ETH           int = 1
 	CHAIN_ID_BASE          int = 8453
 	CHAIN_ID_BASE_SEPOLIA  int = 84532
+	CHAIN_ID_HYPE_TESTNET  int = 998
 	CHAIN_ID_MONAD_TESTNET int = 10143
 )
 
 type Addresses struct {
 	MarginPool  common.Address
+	MMarket     common.Address
 	StrikeAsset common.Address
 }
 
@@ -31,12 +33,19 @@ type Account struct {
 
 var ADDRESSES = map[int]Addresses{
 	CHAIN_ID_BASE_SEPOLIA: {
-		MarginPool:  common.HexToAddress("0xcf571347e69751ca2aef54e9ef3adfee8dd94ab8"),
+		MarginPool:  common.HexToAddress("0xf0ac2edd8eb37b4ac75a2ed02eeae3a5c6bb8e8e"),
+		MMarket:     common.HexToAddress("0x6d23217cb228f3779f6506b44b1abaa3edf6fc58"),
 		StrikeAsset: common.HexToAddress("0x98d56648c9b7f3cb49531f4135115b5000ab1733"),
 	},
 	CHAIN_ID_MONAD_TESTNET: {
-		MarginPool:  common.HexToAddress("0xedb6ef7a8534fd9fe8a448a52f98c2fa62f4e9a1"),
+		MarginPool:  common.HexToAddress("0x968d1f9dcda00df7be0bbc0acf3761853d06eb33"),
+		MMarket:     common.HexToAddress("0x0d71dbdb11c35c72fa4a33beec00d5eb1fbcf1c8"),
 		StrikeAsset: common.HexToAddress("0xf817257fed379853cde0fa4f97ab987181b1e5ea"),
+	},
+	CHAIN_ID_HYPE_TESTNET: {
+		MarginPool: common.HexToAddress("0xB586aBB1b69611284A855BAECE6707bf353C035b"),
+		MMarket:     common.HexToAddress("0x4bB4dDf8F4588780fe0cD31593bd8f5719eBfefd"),
+		StrikeAsset: common.HexToAddress("0x69E37eCb273a23B8864A5f39520Bf97c6768b65C"),
 	},
 }
 
@@ -81,7 +90,7 @@ func (a *Account) approve(ctx context.Context, chainID int, client ethclient.Cli
 		return "", err
 	}
 
-	tx, err := erc20.Approve(opts, ADDRESSES[chainID].MarginPool, amount)
+	tx, err := erc20.Approve(opts, ADDRESSES[chainID].MMarket, amount)
 	if err != nil {
 		return "", err
 	}
