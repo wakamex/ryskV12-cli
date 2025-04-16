@@ -9,7 +9,7 @@ import (
 
 func main() {
 	app := &cli.App{
-		Name: "rysk-v12-cli",
+		Name: "ryskV12",
 		Commands: []*cli.Command{
 			approveAction,
 			balancessAction,
