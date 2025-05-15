@@ -47,6 +47,11 @@ var ADDRESSES = map[int]Addresses{
 		MMarket:     common.HexToAddress("0x4bB4dDf8F4588780fe0cD31593bd8f5719eBfefd"),
 		StrikeAsset: common.HexToAddress("0x69E37eCb273a23B8864A5f39520Bf97c6768b65C"),
 	},
+	CHAIN_ID_BASE: {
+		MarginPool:  common.HexToAddress("0x6EBec8b078464B5d59eCc1c23F7F37e65b75e61f"),
+		MMarket:     common.HexToAddress("0x3D9CB5D2Fa4600bF8d75fB59Fe01Db765dCced15"),
+		StrikeAsset: common.HexToAddress("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"),
+	},
 }
 
 func newAccountFromPrivateKey(pk string) (account Account, err error) {
