@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"time"
 
@@ -151,45 +150,41 @@ func (c *Client) readFromWebSocket() {
 	}()
 
 	for {
-		select {
-		case <-c.Ctx.Done(): // Check context before blocking on ReadMessage
-			log.Println("readFromWebSocket: context done, exiting read loop.")
+		// Simplified loop for debugging
+		// Check context directly before blocking on ReadMessage, no select default needed if ReadMessage is the main blocker.
+		if c.Ctx.Err() != nil {
+			log.Println("readFromWebSocket: context done before read attempt, exiting read loop.")
 			return
-		default:
-			if err := c.Connection.SetReadDeadline(time.Now().Add(1 * time.Second)); err != nil {
-				log.Printf("readFromWebSocket: error setting read deadline: %v", err)
-				c.Disconnect()
-				return
-			}
-
-			messageType, payload, err := c.Connection.ReadMessage()
-			if err != nil {
-				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure, websocket.CloseNoStatusReceived) {
-					log.Printf("readFromWebSocket: unexpected close error: %v", err)
-				} else if ne, ok := err.(net.Error); ok && ne.Timeout() {
-					continue // Read deadline exceeded, loop to check context
-				} else if c.Ctx.Err() != nil {
-					log.Println("readFromWebSocket: context cancelled during read.")
-				} else {
-					log.Printf("readFromWebSocket: error reading message: %v", err)
-				}
-				c.Disconnect()
-				return
-			}
-
-			if err := c.Connection.SetReadDeadline(time.Time{}); err != nil {
-				log.Printf("readFromWebSocket: error resetting read deadline: %v", err)
-				c.Disconnect()
-				return
-			}
-
-			if messageType == websocket.TextMessage || messageType == websocket.BinaryMessage {
-				c.Ingest(payload)
-			} else if messageType == websocket.CloseMessage {
-				log.Println("readFromWebSocket: received close message from peer.")
-				return
-			}
 		}
+
+		log.Println("readFromWebSocket: Attempting c.Connection.ReadMessage() [simplified loop]")
+		messageType, payload, err := c.Connection.ReadMessage() // This will now block indefinitely until a message, ping, or error
+		if err != nil {
+			// Log all errors from ReadMessage
+			log.Printf("readFromWebSocket: ReadMessage (simplified loop) returned err (%T): '%v'.", err, err)
+			// Check if context was cancelled concurrently or if it's a genuine connection error
+			if c.Ctx.Err() != nil {
+				log.Println("readFromWebSocket: Context was already done or cancelled during ReadMessage.")
+			} else {
+				// If context not cancelled by us, assume error is from connection and trigger disconnect
+				c.Disconnect() 
+			}
+			return // Exit on ANY error
+		}
+
+		// Successfully read a message
+		if messageType == websocket.TextMessage || messageType == websocket.BinaryMessage {
+			c.Ingest(payload)
+		} else if messageType == websocket.CloseMessage { // Should be caught by err != nil above, but good to be explicit
+			log.Println("readFromWebSocket: received close message from peer (simplified loop).")
+			if c.Ctx.Err() == nil { // If we didn't already cancel context
+				c.Disconnect() // Ensure client context is cancelled
+			}
+			return
+		} else {
+			log.Printf("readFromWebSocket: received unhandled message type: %d", messageType)
+		}
+		// Loop back to check context and read again
 	}
 }
 
