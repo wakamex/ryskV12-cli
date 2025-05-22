@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/urfave/cli/v2"
 
-	"github.com/rysk-finance/rysk-v12-cli/ryskcore" // Added for ryskcore components
+	"github.com/wakamex/rysk-v12-cli/ryskcore" // Added for ryskcore components
 )
 
 var approveAction = &cli.Command{

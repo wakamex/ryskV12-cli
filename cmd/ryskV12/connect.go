@@ -13,7 +13,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/urfave/cli/v2"
 
-	"github.com/rysk-finance/rysk-v12-cli/ryskcore" // Adjust if your fork's module path is different
+	"github.com/wakamex/rysk-v12-cli/ryskcore" // Adjust if your fork's module path is different
 )
 
 // JsonRPCRequest defines the structure for JSON-RPC messages used in IPC.

@@ -1,4 +1,4 @@
-module github.com/rysk-finance/rysk-v12-cli
+module github.com/wakamex/rysk-v12-cli
 
 go 1.23.0
 

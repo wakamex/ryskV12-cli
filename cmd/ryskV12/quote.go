@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/urfave/cli/v2"
-	"github.com/rysk-finance/rysk-v12-cli/ryskcore" // Adjust if your fork's module path is different
+	"github.com/wakamex/rysk-v12-cli/ryskcore" // Adjust if your fork's module path is different
 )
 
 // JsonRPCRequest needs to be defined in this package or imported if it's a shared type for the CLI.
